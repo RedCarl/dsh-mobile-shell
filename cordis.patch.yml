@@ -1,0 +1,19 @@
+# Mobile shell: an off-canvas sidebar drawer, a bottom navigation bar, touch
+# affordances, and a desktop-view escape hatch for desktop-designed plugin
+# pages. The Host half only serves this row's config to the browser half on
+# GET /plugins/mobile-shell/config; every visual change is browser-side and is
+# gated behind html[data-dsh-mobile], so a desktop window is unaffected.
+- insert:
+    - id: mobile-shell
+      name: '@local/dsh-mobile-shell'
+      config:
+        # Global kill switch. The browser also keeps a per-device switch.
+        enabled: true
+        # Viewport width at or below which the phone layout applies.
+        breakpointPx: 767
+        # Bottom navigation bar (Sessions / New / Files / More).
+        bottomBar: true
+        # Floating "Desktop view" chip while a plugin page fills the main column.
+        panelChip: true
+        # iOS-style keyboard fitting through visualViewport.
+        keyboardFit: true

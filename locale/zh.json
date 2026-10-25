@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "title": "移动端模式",
+    "description": "手机宽度下把侧边栏变成整屏抽屉，提供底部导航（会话 / 新会话 / 文件 / 更多）、触屏行操作与键盘适配；插件页可一键切换桌面版视图。"
+  },
+  "bar.label": "页面导航",
+  "bar.sessions": "会话",
+  "bar.new": "新会话",
+  "bar.files": "文件",
+  "bar.more": "更多",
+  "drawer.open": "打开会话列表",
+  "sheet.title": "导航与设置",
+  "sheet.sessions": "会话列表",
+  "sheet.panels": "面板",
+  "sheet.settings": "设置",
+  "sheet.back": "返回对话",
+  "sheet.desktop": "桌面版视图",
+  "sheet.mobile": "移动适配",
+  "sheet.force": "强制手机布局",
+  "sheet.reload": "刷新页面",
+  "sheet.status": "适配状态",
+  "sheet.close": "关闭",
+  "chip.desktop": "桌面版",
+  "chip.mobile": "手机版",
+  "pill.enable": "手机模式",
+  "status.ok": "正常",
+  "status.pending": "加载中",
+  "status.missing": "未找到侧栏",
+  "sheet.system": "系统",
+  "sheet.account": "账户与登录",
+  "sheet.display": "显示与调试"
+}

@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "title": "Mobile Mode",
+    "description": "Turns the sidebar into a full-screen drawer on phones, adds bottom navigation (sessions, new session, files, more), touch-friendly row actions and keyboard fitting, with a one-tap desktop view for plugin pages."
+  },
+  "bar.label": "Page navigation",
+  "bar.sessions": "Sessions",
+  "bar.new": "New",
+  "bar.files": "Files",
+  "bar.more": "More",
+  "drawer.open": "Open session list",
+  "sheet.title": "Navigation and settings",
+  "sheet.sessions": "Session list",
+  "sheet.panels": "Panels",
+  "sheet.settings": "Settings",
+  "sheet.back": "Back to conversation",
+  "sheet.desktop": "Desktop view",
+  "sheet.mobile": "Mobile layout",
+  "sheet.force": "Force phone layout",
+  "sheet.reload": "Reload page",
+  "sheet.status": "Layout status",
+  "sheet.close": "Close",
+  "chip.desktop": "Desktop",
+  "chip.mobile": "Phone",
+  "pill.enable": "Phone mode",
+  "status.ok": "Ready",
+  "status.pending": "Loading",
+  "status.missing": "Sidebar not found",
+  "sheet.system": "System",
+  "sheet.account": "Account & sign-in",
+  "sheet.display": "Display and debugging"
+}
