@@ -4,6 +4,20 @@
 
 插件只做"叠加 + CSS 覆盖"，不改 DSH 安装包、不替换 `sidebar` 槽、不重写会话列表；桌面窗口完全不受影响。
 
+## 安装（无需 npm）
+
+直接从 GitHub 安装（推荐）：
+
+```sh
+dsh plugin --profile web add https://github.com/RedCarl/dsh-mobile-shell
+```
+
+也可以在 DSH 的「设置 → 插件」中粘贴这个 GitHub 地址，安装后刷新页面。
+
+离线或锁定版本时，从 [GitHub Releases](https://github.com/RedCarl/dsh-mobile-shell/releases) 下载 `*.tgz`，在安装框中粘贴本地绝对路径。
+
+> 如果本机此前用 `link:` 挂载过这个插件的本地目录，先在 profile 里移除同名依赖再安装，避免两个来源冲突。
+
 ## 能力
 
 - **侧栏抽屉**：手机宽度下，原来的左侧栏变成从左侧滑出的**整屏宽**抽屉，只保留会话相关的内容（新建会话、搜索/筛选、工作区与会话列表）；面板入口、设置、账号/登录都收进「更多」，不再挤在抽屉里。抽屉下沿停在底部导航之上，点遮罩、按 Esc、选会话会自动收起。
@@ -62,6 +76,15 @@
 ```bash
 node test/smoke.mjs            # 390x844 手机视口
 WIDTH=1400 node test/smoke.mjs # 桌面：不设 data-dsh-mobile、不动 viewport、不渲染任何导航
+```
+
+## 发布（维护者）
+
+打 `v*` 标签即触发 GitHub Actions：跑自测、`npm pack`，把 tarball 传到对应的 GitHub Release。
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 ## 回退

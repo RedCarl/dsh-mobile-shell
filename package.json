@@ -1,7 +1,6 @@
 {
   "name": "@local/dsh-mobile-shell",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
   "type": "module",
   "description": "Mobile-friendly shell: off-canvas session drawer, bottom navigation, touch affordances, and a desktop-view escape hatch for desktop-designed plugin pages.",
   "icon": "./icon.svg",
@@ -35,5 +34,28 @@
         "@deepseek-ai/dsh-client-locale"
       ]
     }
-  }
+  },
+  "main": "index.js",
+  "author": {
+    "name": "RedCarl"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RedCarl/dsh-mobile-shell.git"
+  },
+  "homepage": "https://github.com/RedCarl/dsh-mobile-shell",
+  "bugs": {
+    "url": "https://github.com/RedCarl/dsh-mobile-shell/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "mobile",
+    "phone",
+    "sidebar",
+    "drawer",
+    "bottom-navigation"
+  ]
 }
