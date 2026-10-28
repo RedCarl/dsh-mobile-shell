@@ -952,7 +952,7 @@ window.__ModuleLoader__.load({
       if (current.status === 'checking' || current.status === 'updating') return;
       store.set({ update: { ...current, status: 'checking' } });
       try {
-        const response = await fetch('/plugins/mobile-shell/update', {
+        const response = await fetch(new URL('plugins/mobile-shell/update', document.baseURI).href, {
           headers: { accept: 'application/json' },
           cache: 'no-store',
         });
@@ -980,7 +980,7 @@ window.__ModuleLoader__.load({
       if (current.status !== 'available') return;
       store.set({ update: { ...current, status: 'updating' } });
       try {
-        const response = await fetch('/plugins/mobile-shell/update', {
+        const response = await fetch(new URL('plugins/mobile-shell/update', document.baseURI).href, {
           method: 'POST',
           headers: { accept: 'application/json' },
           cache: 'no-store',

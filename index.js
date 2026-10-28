@@ -361,6 +361,10 @@ export function apply(ctx, config) {
             });
             return;
           }
+          if (state.error !== undefined) {
+            sendJson(res, 502, { ok: false, error: state.error });
+            return;
+          }
           if (!state.available) {
             sendJson(res, 200, { ok: true, upToDate: true, current: state.current, version: state.current });
             return;
