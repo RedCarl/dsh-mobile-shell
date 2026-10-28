@@ -20,6 +20,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Check that the tag matches the package version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "tag $GITHUB_REF_NAME does not match package.json version $version" >&2
+            exit 1
+          fi
       - name: Run the smoke and host tests
         run: |
           node test/smoke.mjs
@@ -31,8 +38,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          tgz=$(ls ./*.tgz | head -n1)
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" ./*.tgz --clobber
+            gh release upload "$GITHUB_REF_NAME" "$tgz" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" --generate-notes --title "$GITHUB_REF_NAME" ./*.tgz
+            gh release create "$GITHUB_REF_NAME" --generate-notes --title "$GITHUB_REF_NAME" "$tgz"
           fi
+          want=$(basename "$tgz")
+          gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' | while read -r name; do
+            if [ "$name" != "$want" ]; then
+              gh release delete-asset "$GITHUB_REF_NAME" "$name" -y
+            fi
+          done

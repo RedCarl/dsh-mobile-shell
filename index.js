@@ -195,9 +195,13 @@ async function latestRelease() {
   try {
     const release = await fetchJson(`https://api.github.com/repos/${REPO}/releases/latest`);
     const tag = String(release?.tag_name ?? '');
+    const assets = Array.isArray(release?.assets) ? release.assets : [];
+    const tarball = assets.find((item) => typeof item?.name === 'string' && item.name.endsWith('.tgz'));
+    const packaged = /-(d+.d+.d+).tgz$/.exec(tarball?.name ?? '');
     const data = {
       tag,
-      version: tag.replace(/^v/, ''),
+      version: packaged === null ? tag.replace(/^v/, '') : packaged[1],
+      assetUrl: typeof tarball?.browser_download_url === 'string' ? tarball.browser_download_url : '',
       htmlUrl: typeof release?.html_url === 'string' ? release.html_url : `https://github.com/${REPO}/releases`,
       publishedAt: typeof release?.published_at === 'string' ? release.published_at : '',
       notes: String(release?.body ?? '').slice(0, 400),
@@ -241,6 +245,7 @@ async function updateState() {
     source,
     spec: spec ?? null,
     latest: typeof latest.version === 'string' ? latest.version : '',
+    assetUrl: latest.assetUrl ?? '',
     tag: latest.tag ?? '',
     htmlUrl: latest.htmlUrl ?? `https://github.com/${REPO}`,
     publishedAt: latest.publishedAt ?? '',
@@ -250,11 +255,15 @@ async function updateState() {
 }
 
 /** Install one published version through the profile's package manager. */
-async function runUpdate(version) {
+async function runUpdate(version, assetUrl) {
   if (!VERSION.test(version)) throw new Error('invalid release version');
   const install = await profileInstall();
   if (install === undefined) throw Object.assign(new Error('development install'), { code: 'link' });
-  const spec = `https://github.com/${REPO}/releases/download/v${version}/local-dsh-mobile-shell-${version}.tgz`;
+  const expected = `https://github.com/${REPO}/releases/download/`;
+  const spec =
+    typeof assetUrl === 'string' && assetUrl.startsWith(expected) && assetUrl.endsWith('.tgz')
+      ? assetUrl
+      : `https://github.com/${REPO}/releases/download/v${version}/local-dsh-mobile-shell-${version}.tgz`;
   const output = await new Promise((resolve, reject) => {
     const child = spawn(process.env.PNPM_BIN ?? 'pnpm', ['add', spec], {
       cwd: install.dir,
@@ -369,7 +378,7 @@ export function apply(ctx, config) {
             sendJson(res, 200, { ok: true, upToDate: true, current: state.current, version: state.current });
             return;
           }
-          updateInFlight = runUpdate(state.latest);
+          updateInFlight = runUpdate(state.latest, state.assetUrl);
           try {
             const result = await updateInFlight;
             sendJson(res, 200, {
