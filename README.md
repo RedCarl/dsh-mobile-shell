@@ -9,14 +9,24 @@
 直接从 GitHub 安装（推荐）：
 
 ```sh
-dsh plugin --profile web add https://github.com/RedCarl/dsh-mobile-shell
+dsh plugin --profile web add github:RedCarl/dsh-mobile-shell
 ```
 
-也可以在 DSH 的「设置 → 插件」中粘贴这个 GitHub 地址，安装后刷新页面。
+也可以在 DSH 的「设置 → 插件」中粘贴仓库地址 `https://github.com/RedCarl/dsh-mobile-shell`，安装后刷新页面。
 
 离线或锁定版本时，从 [GitHub Releases](https://github.com/RedCarl/dsh-mobile-shell/releases) 下载 `*.tgz`，在安装框中粘贴本地绝对路径。
 
 > 如果本机此前用 `link:` 挂载过这个插件的本地目录，先在 profile 里移除同名依赖再安装，避免两个来源冲突。
+
+## 自动更新
+
+插件会自己检查 GitHub 上的新版本，并支持一键更新：
+
+- Host 启动后检查一次，之后打开「更多」也会检查；结果缓存 10 分钟，直接读 GitHub Releases；
+- 「更多 → 系统 → 检查更新」显示当前状态：`1.1.0 · 已是最新` / `1.2.0 · 可更新` / `检查失败`；
+- 有新版本时该行高亮，点一下即可安装（在 profile 里执行 `pnpm add` 拉取对应 Release 的 tarball）；完成后点按该行刷新页面，Host 侧改动则重启 `dsh web` 生效；
+- 有新版本时底部「更多」按钮右上角会出现一个小圆点；
+- 用 `link:` 本地链接安装时显示「本地安装」，不提供自动更新（此时插件源码就在本机，直接 `git pull` 即可）。
 
 ## 能力
 

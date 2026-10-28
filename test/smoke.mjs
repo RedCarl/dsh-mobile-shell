@@ -284,6 +284,8 @@ assert(sheetText.includes('dsh-ms-sheet-close'), 'sheet close control rendered')
 assert(sheetText.includes('dsh-ms-foot'), 'sheet footer rendered');
 assert(sheetText.includes('Settings'), 'settings row listed');
 assert(sheetText.includes('Account & sign-in'), 'account row listed');
+assert(sheetText.includes('Check for updates'), 'update row listed');
+assert(sheetText.includes('dsh-ms-state'), 'update state slot rendered');
 assert(!sheetText.includes('dsh-ms-sheet-row'), 'old sheet rows are gone');
 
 // The More button toggles the sheet: close keeps it mounted briefly for the exit animation.

@@ -90,6 +90,7 @@ window.__ModuleLoader__.load({
         font-size:11px;line-height:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
         gap:3px;flex:1 1 0;min-width:0;padding:6px 4px 4px;border-radius:10px;cursor:pointer;touch-action:manipulation}
       .dsh-ms-btn>svg{width:20px;height:20px;flex:none}
+      .dsh-ms-btn{position:relative}
       .dsh-ms-btn:active{background:var(--dsw-alias-interactive-bg-hover)}
       .dsh-ms-btn[data-active="true"]{color:var(--dsw-alias-label-primary)}
       .dsh-ms-btn[data-disabled="true"]{opacity:.38;pointer-events:none}
@@ -174,6 +175,15 @@ window.__ModuleLoader__.load({
         background:var(--dsw-alias-bg-base);box-shadow:0 1px 3px rgb(0 0 0/.25);transition:transform .15s}
       .dsh-ms-switch[aria-checked="true"]{background:var(--dsw-alias-state-business-primary);border-color:transparent}
       .dsh-ms-switch[aria-checked="true"]:after{transform:translateX(16px);background:#fff}
+      .dsh-ms-state{flex:none;max-width:54%;color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:16px;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .dsh-ms-row[data-update="available"] .dsh-ms-state{color:var(--dsw-alias-state-business-primary);font-weight:600}
+      .dsh-ms-spin{flex:none;width:16px;height:16px;border-radius:50%;
+        border:2px solid var(--dsw-alias-border-l2);border-top-color:var(--dsw-alias-state-business-primary);
+        animation:dsh-ms-spin .8s linear infinite}
+      @keyframes dsh-ms-spin{to{transform:rotate(360deg)}}
+      .dsh-ms-badge{position:absolute;top:8px;right:calc(50% - 14px);width:6px;height:6px;border-radius:50%;
+        background:var(--dsw-alias-state-business-primary);box-shadow:0 0 0 2px var(--dsw-alias-bg-base,Canvas)}
       .dsh-ms-foot{display:flex;align-items:center;gap:12px;padding:16px 4px 2px}
       .dsh-ms-foot-status{flex:1;min-width:0;color:var(--dsw-alias-label-tertiary);font-size:11px;line-height:16px;
         overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -343,6 +353,14 @@ window.__ModuleLoader__.load({
       'sheet.display': '显示与调试',
       'sheet.system': '系统',
       'sheet.account': '账户与登录',
+      'sheet.update': '检查更新',
+      'update.checking': '检查中…',
+      'update.updating': '更新中…',
+      'update.available': '可更新',
+      'update.current': '已是最新',
+      'update.done': '已更新',
+      'update.local': '本地安装',
+      'update.error': '检查失败',
       'sheet.back': '返回对话',
       'sheet.desktop': '桌面版视图',
       'sheet.mobile': '移动适配',
@@ -372,6 +390,14 @@ window.__ModuleLoader__.load({
       'sheet.display': 'Display and debugging',
       'sheet.system': 'System',
       'sheet.account': 'Account & sign-in',
+      'sheet.update': 'Check for updates',
+      'update.checking': 'Checking…',
+      'update.updating': 'Updating…',
+      'update.available': 'Update available',
+      'update.current': 'Up to date',
+      'update.done': 'Updated',
+      'update.local': 'Local install',
+      'update.error': 'Check failed',
       'sheet.back': 'Back to conversation',
       'sheet.desktop': 'Desktop view',
       'sheet.mobile': 'Mobile layout',
@@ -422,6 +448,7 @@ window.__ModuleLoader__.load({
         drawer: false,
         sheet: false,
         sheetClosing: false,
+        update: { status: 'idle' },
         status: 'pending',
         session: undefined,
       };
@@ -919,6 +946,73 @@ window.__ModuleLoader__.load({
       window.setTimeout(() => openAccountMenu(), 40);
     }
 
+    /** Check the GitHub release feed for a newer build. */
+    async function checkUpdates() {
+      const current = store.get().update ?? {};
+      if (current.status === 'checking' || current.status === 'updating') return;
+      store.set({ update: { ...current, status: 'checking' } });
+      try {
+        const response = await fetch('/plugins/mobile-shell/update', {
+          headers: { accept: 'application/json' },
+          cache: 'no-store',
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data?.ok !== true) throw new Error(data?.error ?? 'HTTP ' + response.status);
+        const failed = typeof data.error === 'string' && data.error !== '';
+        store.set({
+          update: {
+            status: failed ? 'error' : data.available ? 'available' : data.source === 'link' ? 'local' : 'current',
+            current: data.current,
+            latest: data.latest,
+            source: data.source,
+            htmlUrl: data.htmlUrl,
+            message: data.error ?? '',
+          },
+        });
+      } catch (error) {
+        store.set({ update: { ...current, status: 'error', message: String(error?.message ?? error) } });
+      }
+    }
+
+    /** Install the latest release through the Host, then offer a reload. */
+    async function applyUpdate() {
+      const current = store.get().update ?? {};
+      if (current.status !== 'available') return;
+      store.set({ update: { ...current, status: 'updating' } });
+      try {
+        const response = await fetch('/plugins/mobile-shell/update', {
+          method: 'POST',
+          headers: { accept: 'application/json' },
+          cache: 'no-store',
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data?.ok !== true) throw new Error(data?.error ?? 'HTTP ' + response.status);
+        store.set({
+          update: {
+            ...current,
+            status: 'done',
+            latest: data.version ?? current.latest,
+            message: String(data.output ?? '').slice(-400),
+          },
+        });
+      } catch (error) {
+        store.set({ update: { ...current, status: 'error', message: String(error?.message ?? error) } });
+      }
+    }
+
+    /** One-line state text for the update row. */
+    function updateText(update, t) {
+      const status = update?.status ?? 'idle';
+      if (status === 'checking') return t('update.checking', 'Checking…');
+      if (status === 'updating') return t('update.updating', 'Updating…');
+      if (status === 'available') return (update.latest ?? '') + ' · ' + t('update.available', 'Update available');
+      if (status === 'done') return (update.latest ?? '') + ' · ' + t('update.done', 'Updated');
+      if (status === 'current') return (update.current ?? '') + ' · ' + t('update.current', 'Up to date');
+      if (status === 'local') return (update.current ?? '') + ' · ' + t('update.local', 'Local install');
+      if (status === 'error') return t('update.error', 'Check failed');
+      return update?.current ?? '';
+    }
+
     /** Select a main panel by id; unknown ids are ignored. */
     function selectPanelById(id) {
       try {
@@ -1163,6 +1257,9 @@ window.__ModuleLoader__.load({
       window.addEventListener('resize', onResize);
       window.addEventListener('orientationchange', onResize);
       document.addEventListener('keydown', onKeyDown);
+      window.setTimeout(() => {
+        if (!disposed) checkUpdates();
+      }, 1200);
     }
 
     /** Remove every attribute, listener and timer this plugin added. */
@@ -1226,7 +1323,7 @@ window.__ModuleLoader__.load({
     }
 
     // ── components ──────────────────────────────────────────────────────
-    function BarButton({ icon: glyph, label, onClick, active, disabled, expanded }) {
+    function BarButton({ icon: glyph, label, onClick, active, disabled, expanded, dot }) {
       return h(
         'button',
         {
@@ -1241,6 +1338,7 @@ window.__ModuleLoader__.load({
           },
         },
         glyph,
+        dot ? h('i', { className: 'dsh-ms-badge', 'aria-hidden': 'true' }) : null,
         h('span', null, label),
       );
     }
@@ -1284,6 +1382,7 @@ window.__ModuleLoader__.load({
           icon: icon('more'),
           label: t('bar.more', 'More'),
           active: state.sheet,
+          dot: (state.update?.status ?? 'idle') === 'available',
           onClick: () => {
             if (store.get().sheet) closeSheet();
             else openSheet();
@@ -1329,6 +1428,10 @@ window.__ModuleLoader__.load({
     /** The bottom sheet: navigation, panel shortcuts, display switches and status. */
     function MoreSheet({ panelId, close }) {
       const state = useStoreValue();
+      const update = state.update ?? { status: 'idle' };
+      React.useEffect(() => {
+        if ((store.get().update?.status ?? 'idle') === 'idle') void checkUpdates();
+      }, []);
       const rows = panelRows();
       const t = (key, fallback) => tr(key, fallback);
       const statusText =
@@ -1452,6 +1555,40 @@ window.__ModuleLoader__.load({
               icon('user', 18),
               h('span', null, t('sheet.account', 'Account & sign-in')),
               h('span', { className: 'dsh-ms-chevron' }, icon('chevron', 16)),
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'dsh-ms-row',
+                'data-update': update.status ?? 'idle',
+                title: update.message || undefined,
+                onClick: () => {
+                  const status = update.status ?? 'idle';
+                  if (status === 'available') {
+                    void applyUpdate();
+                    return;
+                  }
+                  if (status === 'done') {
+                    try {
+                      window.location.reload();
+                    } catch (error) {
+                      /* ignore */
+                    }
+                    return;
+                  }
+                  if (status === 'local') {
+                    if (update.htmlUrl) window.open(update.htmlUrl, '_blank', 'noopener');
+                    return;
+                  }
+                  void checkUpdates();
+                },
+              },
+              update.status === 'checking' || update.status === 'updating'
+                ? h('i', { className: 'dsh-ms-spin', 'aria-hidden': 'true' })
+                : icon('refresh', 18),
+              h('span', null, t('sheet.update', 'Check for updates')),
+              h('span', { className: 'dsh-ms-state' }, updateText(update, t)),
             ),
           ),
           h('div', { className: 'dsh-ms-section' }, t('sheet.display', 'Display and debugging')),

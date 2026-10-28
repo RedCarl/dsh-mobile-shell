@@ -28,5 +28,13 @@
   "status.missing": "未找到侧栏",
   "sheet.system": "系统",
   "sheet.account": "账户与登录",
-  "sheet.display": "显示与调试"
+  "sheet.display": "显示与调试",
+  "sheet.update": "检查更新",
+  "update.checking": "检查中…",
+  "update.updating": "更新中…",
+  "update.available": "可更新",
+  "update.current": "已是最新",
+  "update.done": "已更新",
+  "update.local": "本地安装",
+  "update.error": "检查失败"
 }

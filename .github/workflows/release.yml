@@ -20,8 +20,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Run the smoke test
-        run: node test/smoke.mjs
+      - name: Run the smoke and host tests
+        run: |
+          node test/smoke.mjs
+          WIDTH=1400 node test/smoke.mjs
+          node test/host.mjs
       - name: Pack the DSH bundle
         run: npm pack
       - name: Publish the tarball to the GitHub Release

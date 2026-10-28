@@ -28,5 +28,13 @@
   "status.missing": "Sidebar not found",
   "sheet.system": "System",
   "sheet.account": "Account & sign-in",
-  "sheet.display": "Display and debugging"
+  "sheet.display": "Display and debugging",
+  "sheet.update": "Check for updates",
+  "update.checking": "Checking…",
+  "update.updating": "Updating…",
+  "update.available": "Update available",
+  "update.current": "Up to date",
+  "update.done": "Updated",
+  "update.local": "Local install",
+  "update.error": "Check failed"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-mobile-shell",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "Mobile-friendly shell: off-canvas session drawer, bottom navigation, touch affordances, and a desktop-view escape hatch for desktop-designed plugin pages.",
   "icon": "./icon.svg",
